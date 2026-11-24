@@ -1,0 +1,293 @@
+<!doctype html>
+<!--
+  =============================================================================
+   index.html : le SQUELETTE de la fenêtre d'ALLTube
+  =============================================================================
+   HTML = les "briques" de la page (boutons, textes, zones).
+   CSS  = la décoration (couleurs, tailles)        -> fichier css/style.css
+   JS   = le comportement (ce qui se passe au clic) -> fichiers js/i18n.js et js/app.js
+
+   Les textes visibles ne sont PAS écrits ici : on met seulement une étiquette
+   comme data-i18n="home.recent". Le fichier js/i18n.js la remplace par le texte
+   de la langue choisie (français, anglais ou mandarin).
+
+   SÉCURITÉ : pas de JavaScript écrit directement dans cette page (la politique
+   de sécurité CSP l'interdit). Tout le code est dans des fichiers séparés.
+  =============================================================================
+-->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALLTube</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- "defer" = on charge le script une fois la page prête -->
+  <script src="js/i18n.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= BARRE LATÉRALE (à gauche) ================= -->
+  <aside class="sidebar">
+    <!-- Logo : remplace le fichier assets/icons/logo.svg par le tien -->
+    <img class="logo" src="assets/icons/logo.svg" alt="ALLTube" draggable="false">
+
+    <div class="nav">
+      <!-- Maison : retour à l'accueil. Ferme les paramètres / les ciseaux. -->
+      <button class="nav-btn active" id="nav-home" data-view="home" type="button"
+              data-i18n-title="nav.home" data-i18n-aria="nav.home">
+        <span class="icon" data-icon="home"></span>
+      </button>
+      <!-- Ciseaux : découper une vidéo -->
+      <button class="nav-btn" id="nav-cut" data-view="cut" type="button"
+              data-i18n-title="nav.cut" data-i18n-aria="nav.cut">
+        <span class="icon" data-icon="cut"></span>
+      </button>
+      <hr class="nav-sep">
+      <!-- Engrenage : paramètres. Ferme l'accueil. -->
+      <button class="nav-btn" id="nav-settings" data-view="settings" type="button"
+              data-i18n-title="nav.settings" data-i18n-aria="nav.settings">
+        <span class="icon" data-icon="settings"></span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= ZONE PRINCIPALE ================= -->
+  <main class="main">
+
+    <!-- Barre du haut : recherche + format + OK (toujours visible) -->
+    <header class="topbar" id="topbar">
+      <form class="searchbox" id="search-form" autocomplete="off">
+        <span class="icon sm search-icon" data-icon="search"></span>
+        <input id="search-input" type="text" maxlength="2000" spellcheck="false"
+               data-i18n-placeholder="search.placeholder" data-i18n-aria="search.placeholder">
+        <button type="button" class="format-btn" id="format-btn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="format-label">MP4 FHD</span>
+          <span class="icon xs" data-icon="chevron"></span>
+        </button>
+        <button type="submit" class="ok-btn" data-i18n="search.ok">OK</button>
+      </form>
+
+      <!-- Menu déroulant des formats (caché tant qu'on n'a pas cliqué) -->
+      <div class="dropdown" id="format-dropdown" hidden>
+        <div class="dropdown-search">
+          <span class="icon sm" data-icon="search"></span>
+          <input id="format-search" type="text" spellcheck="false"
+                 data-i18n-placeholder="format.search" data-i18n-aria="format.search">
+        </div>
+        <div class="dropdown-list" id="format-list" role="listbox"></div>
+      </div>
+    </header>
+
+    <!-- Bandeau d'alerte si un moteur (yt-dlp / ffmpeg) est introuvable -->
+    <div class="banner" id="engine-banner" hidden data-i18n="err.engine_missing"></div>
+
+    <!-- ============ ÉCRAN 1 : ACCUEIL ============ -->
+    <section class="view active" id="view-home">
+      <div class="view-head">
+        <h2 data-i18n="home.recent"></h2>
+        <!-- Ce bouton n'apparaît que s'il y a des téléchargements -->
+        <button class="ghost-btn" id="clear-btn" type="button" hidden>
+          <span class="icon sm" data-icon="trash"></span>
+          <span data-i18n="home.clear"></span>
+        </button>
+      </div>
+
+      <div class="list" id="downloads"></div>
+
+      <!-- Message affiché quand la liste est vide -->
+      <div class="empty" id="empty">
+        <span class="icon lg" data-icon="upload"></span>
+        <p class="empty-title" data-i18n="home.drop"></p>
+        <p class="empty-sub" data-i18n="home.compat"></p>
+      </div>
+    </section>
+
+    <!-- ============ ÉCRAN 2 : PARAMÈTRES ============ -->
+    <section class="view" id="view-settings">
+      <h1 class="page-title" data-i18n="settings.title"></h1>
+
+      <!-- Dossier des téléchargements -->
+      <div class="setting">
+        <span class="icon lg" data-icon="folder"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.folder"></div>
+          <div class="setting-path" id="set-folder-path"></div>
+          <div class="setting-desc" data-i18n="set.folder.desc"></div>
+          <div class="btn-row">
+            <button class="btn" id="set-folder-browse" type="button" data-i18n="set.browse"></button>
+            <button class="btn" id="set-folder-default" type="button" data-i18n="set.default"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sous-titres -->
+      <div class="setting">
+        <span class="icon lg" data-icon="subtitles"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.subs"></div>
+          <div class="setting-desc" data-i18n="set.subs.desc"></div>
+          <div class="chips" id="sub-chips"></div>
+          <div class="lang-pop" id="lang-pop" hidden></div>
+        </div>
+        <label class="switch"><input type="checkbox" id="set-subs"><span class="slider"></span></label>
+      </div>
+
+      <!-- Autres pistes audio -->
+      <div class="setting">
+        <span class="icon lg" data-icon="music"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.audio"></div>
+          <div class="setting-desc" data-i18n="set.audio.desc"></div>
+        </div>
+        <label class="switch"><input type="checkbox" id="set-extra-audio"><span class="slider"></span></label>
+      </div>
+
+      <!-- Notification de fin -->
+      <div class="setting">
+        <span class="icon lg" data-icon="bell"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.notify"></div>
+          <div class="setting-desc" data-i18n="set.notify.desc"></div>
+        </div>
+        <label class="switch"><input type="checkbox" id="set-notify"><span class="slider"></span></label>
+      </div>
+
+      <!-- Téléchargements simultanés -->
+      <div class="setting">
+        <span class="icon lg" data-icon="parallel"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.parallel"></div>
+          <div class="setting-desc" data-i18n="set.parallel.desc"></div>
+        </div>
+        <input class="num" type="number" id="set-parallel" min="1" max="8" step="1">
+      </div>
+
+      <!-- Délai entre les téléchargements (grisé si simultanés > 1) -->
+      <div class="setting" id="row-delay">
+        <span class="icon lg" data-icon="timer"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.delay"></div>
+          <div class="setting-desc" data-i18n="set.delay.desc"></div>
+        </div>
+        <span class="num-wrap"><input class="num" type="number" id="set-delay" min="0" max="600" step="1"><span class="unit">s</span></span>
+      </div>
+
+      <!-- Langue de l'application -->
+      <div class="setting">
+        <span class="icon lg" data-icon="language"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.language"></div>
+          <div class="setting-desc" data-i18n="set.language.desc"></div>
+        </div>
+        <select class="select" id="set-language">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="zh">中文（普通话）</option>
+        </select>
+      </div>
+
+      <!-- Thème -->
+      <div class="setting">
+        <span class="icon lg" data-icon="theme"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.theme"></div>
+          <div class="setting-desc" data-i18n="set.theme.desc"></div>
+        </div>
+        <select class="select" id="set-theme">
+          <option value="dark" data-i18n="theme.dark"></option>
+          <option value="light" data-i18n="theme.light"></option>
+        </select>
+      </div>
+
+      <!-- Cookies du navigateur -->
+      <div class="setting">
+        <span class="icon lg" data-icon="cookie"></span>
+        <div class="setting-text">
+          <div class="setting-title" data-i18n="set.cookies"></div>
+          <div class="setting-desc" data-i18n="set.cookies.desc"></div>
+          <div class="btn-row" id="cookies-browser-row" hidden>
+            <span class="setting-desc" data-i18n="set.cookies.browser"></span>
+            <select class="select" id="set-cookies-browser">
+              <option value="firefox">Firefox</option>
+              <option value="chrome">Chrome</option>
+              <option value="edge">Edge</option>
+              <option value="brave">Brave</option>
+              <option value="opera">Opera</option>
+              <option value="vivaldi">Vivaldi</option>
+              <option value="chromium">Chromium</option>
+              <option value="safari">Safari</option>
+            </select>
+          </div>
+        </div>
+        <label class="switch"><input type="checkbox" id="set-cookies"><span class="slider"></span></label>
+      </div>
+
+      <p class="version" id="app-version"></p>
+    </section>
+
+    <!-- ============ ÉCRAN 3 : CISEAUX (découper une vidéo) ============ -->
+    <section class="view" id="view-cut">
+      <div class="view-head"><h2 data-i18n="cut.title"></h2></div>
+
+      <!-- Zone vide : on attend un fichier -->
+      <div class="cut-drop" id="cut-drop">
+        <span class="icon lg" data-icon="upload"></span>
+        <p class="empty-title" data-i18n="cut.drop"></p>
+        <button class="ok-btn wide" id="cut-open" type="button" data-i18n="cut.open"></button>
+      </div>
+
+      <!-- Éditeur : un fichier est chargé -->
+      <div class="cut-editor" id="cut-editor" hidden>
+        <div class="cut-file">
+          <span class="cut-name" id="cut-name"></span>
+          <button class="ghost-btn" id="cut-change" type="button" data-i18n="cut.change"></button>
+        </div>
+
+        <div class="cut-row">
+          <label for="cut-start" data-i18n="cut.start"></label>
+          <input type="range" id="cut-start-range" min="0" step="0.1" value="0">
+          <input type="text" id="cut-start" class="time-input" inputmode="decimal" spellcheck="false">
+        </div>
+        <div class="cut-row">
+          <label for="cut-end" data-i18n="cut.end"></label>
+          <input type="range" id="cut-end-range" min="0" step="0.1" value="0">
+          <input type="text" id="cut-end" class="time-input" inputmode="decimal" spellcheck="false">
+        </div>
+
+        <p class="cut-info"><span data-i18n="cut.duration"></span> <b id="cut-length"></b></p>
+
+        <label class="check">
+          <input type="checkbox" id="cut-precise">
+          <span data-i18n="cut.precise"></span>
+        </label>
+        <p class="hint" data-i18n="cut.precise.hint"></p>
+
+        <div class="progress cut-progress" id="cut-progress" hidden><div class="bar" id="cut-bar"></div></div>
+        <button class="ok-btn wide" id="cut-go" type="button" data-i18n="cut.go"></button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ FENÊTRE "Codecs custom" ============ -->
+<div class="modal-backdrop" id="custom-modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="custom-title">
+    <h3 id="custom-title" data-i18n="custom.title"></h3>
+    <label class="field"><span data-i18n="custom.container"></span><select class="select" id="cc-container"></select></label>
+    <label class="field"><span data-i18n="custom.video"></span><select class="select" id="cc-video"></select></label>
+    <label class="field"><span data-i18n="custom.audio"></span><select class="select" id="cc-audio"></select></label>
+    <label class="field"><span data-i18n="custom.height"></span><select class="select" id="cc-height"></select></label>
+    <div class="btn-row end">
+      <button class="btn" id="cc-cancel" type="button" data-i18n="custom.cancel"></button>
+      <button class="ok-btn" id="cc-ok" type="button" data-i18n="custom.ok"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Petit message temporaire (erreurs, confirmations) -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+</body>
+</html>

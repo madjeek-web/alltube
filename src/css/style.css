@@ -1,0 +1,336 @@
+/* =============================================================================
+   style.css : la DÉCORATION d'ALLTube (couleurs, tailles, formes)
+   =============================================================================
+   Le CSS décrit à quoi ressemble chaque élément du fichier index.html.
+   Exemple :  .ok-btn { background: red; }
+   veut dire "tous les éléments qui ont class="ok-btn" ont un fond rouge".
+
+   Les couleurs sont rangées dans des "variables" (--accent, --bg...) tout en
+   haut. Pour changer une couleur partout d'un coup, on la change là.
+   ============================================================================= */
+
+/* ---------- Couleurs du thème SOMBRE (par défaut) ---------- */
+:root {
+  --bg: #1e1f23;          /* fond principal */
+  --bg-side: #1b1c20;     /* fond de la barre de gauche */
+  --bg-card: #17181b;     /* fond des cartes de téléchargement */
+  --bg-field: #3a3b40;    /* fond des champs et boutons gris */
+  --bg-hover: #47484e;    /* fond d'un bouton gris quand la souris passe dessus */
+  --bg-pop: #2b2c31;      /* fond des menus qui s'ouvrent */
+  --border: #2c2d32;      /* traits fins de séparation */
+  --text: #f4f4f5;        /* texte principal */
+  --muted: #8b8c92;       /* texte discret */
+  --track: #e9e9ea;       /* partie "pas encore faite" de la barre de progression */
+  --accent: #ff1a1a;      /* le rouge ALLTube */
+  --accent-hover: #ff4040;
+  --green: #22c55e;
+  --blue: #2b8cff;
+  --orange: #f59e0b;
+
+  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "PingFang SC",
+          "Noto Sans CJK SC", "Noto Sans", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+/* ---------- Couleurs du thème CLAIR ---------- */
+:root[data-theme="light"] {
+  --bg: #f3f3f6;
+  --bg-side: #ffffff;
+  --bg-card: #ffffff;
+  --bg-field: #e5e6ea;
+  --bg-hover: #d7d8de;
+  --bg-pop: #ffffff;
+  --border: #dcdde2;
+  --text: #17181b;
+  --muted: #6b6c73;
+  --track: #cfd0d6;
+  color-scheme: light;
+}
+
+/* ---------- Réglages de base ---------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  overflow: hidden;
+  /* Une application n'est pas une page web : on ne sélectionne pas le texte
+     partout, sauf dans les champs de saisie. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, select { -webkit-user-select: text; user-select: text; font: inherit; color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+h1, h2, h3, p { margin: 0; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Icônes ----------
+   Chaque icône est un fichier .svg du dossier assets/icons.
+   On l'utilise comme un "pochoir" (mask) rempli avec la couleur du texte :
+   ainsi une même icône peut être grise, rouge, blanche, selon le contexte.
+   -> Pour changer une icône : remplace simplement le fichier .svg ! */
+.icon {
+  display: inline-block; flex: none; width: 26px; height: 26px;
+  background-color: currentColor;
+  -webkit-mask: var(--i) center / contain no-repeat;
+          mask: var(--i) center / contain no-repeat;
+}
+.icon.lg { width: 30px; height: 30px; }
+.icon.sm { width: 18px; height: 18px; }
+.icon.xs { width: 14px; height: 14px; }
+.icon[data-icon="home"]      { --i: url("../assets/icons/home.svg"); }
+.icon[data-icon="cut"]       { --i: url("../assets/icons/cut.svg"); }
+.icon[data-icon="settings"]  { --i: url("../assets/icons/settings.svg"); }
+.icon[data-icon="search"]    { --i: url("../assets/icons/search.svg"); }
+.icon[data-icon="chevron"]   { --i: url("../assets/icons/chevron.svg"); }
+.icon[data-icon="trash"]     { --i: url("../assets/icons/trash.svg"); }
+.icon[data-icon="upload"]    { --i: url("../assets/icons/upload.svg"); }
+.icon[data-icon="play"]      { --i: url("../assets/icons/play.svg"); }
+.icon[data-icon="clock"]     { --i: url("../assets/icons/clock.svg"); }
+.icon[data-icon="dots"]      { --i: url("../assets/icons/dots.svg"); }
+.icon[data-icon="folder"]    { --i: url("../assets/icons/folder.svg"); }
+.icon[data-icon="subtitles"] { --i: url("../assets/icons/subtitles.svg"); }
+.icon[data-icon="music"]     { --i: url("../assets/icons/music.svg"); }
+.icon[data-icon="bell"]      { --i: url("../assets/icons/bell.svg"); }
+.icon[data-icon="parallel"]  { --i: url("../assets/icons/parallel.svg"); }
+.icon[data-icon="timer"]     { --i: url("../assets/icons/timer.svg"); }
+.icon[data-icon="language"]  { --i: url("../assets/icons/language.svg"); }
+.icon[data-icon="theme"]     { --i: url("../assets/icons/theme.svg"); }
+.icon[data-icon="cookie"]    { --i: url("../assets/icons/cookie.svg"); }
+.icon[data-icon="open"]      { --i: url("../assets/icons/open.svg"); }
+.icon[data-icon="plus"]      { --i: url("../assets/icons/plus.svg"); }
+.icon[data-icon="close"]     { --i: url("../assets/icons/close.svg"); }
+.icon[data-icon="check"]     { --i: url("../assets/icons/check.svg"); }
+
+/* ---------- Disposition générale : barre latérale + zone principale ---------- */
+#app { display: flex; height: 100%; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+
+/* ---------- Barre latérale ---------- */
+.sidebar {
+  width: 104px; flex: none; display: flex; flex-direction: column; align-items: center;
+  padding: 22px 0; background: var(--bg-side); border-right: 1px solid var(--border);
+}
+.logo { width: 56px; height: 56px; object-fit: contain; }
+.nav { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding-bottom: 80px; }
+.nav-btn {
+  width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px;
+  color: var(--muted); transition: color .15s, background .15s;
+}
+.nav-btn:hover { color: var(--text); background: var(--bg-field); }
+.nav-btn.active { color: var(--accent); }
+.nav-sep { width: 64px; border: 0; border-top: 1px solid var(--border); margin: 6px 0; }
+
+/* ---------- Barre du haut : recherche ---------- */
+.topbar { position: relative; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.searchbox {
+  display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 7px 0 16px;
+  background: var(--bg-field); border-radius: 12px;
+}
+.search-icon { color: var(--muted); }
+#search-input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font-size: 15px; }
+#search-input::placeholder, .dropdown-search input::placeholder { color: var(--muted); }
+.format-btn {
+  display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 4px 0 14px;
+  border-left: 1px solid var(--border); color: var(--muted); font-weight: 600; white-space: nowrap;
+}
+.format-btn:hover { color: var(--text); }
+.ok-btn {
+  height: 36px; padding: 0 22px; border-radius: 8px; background: var(--accent);
+  color: #fff; font-weight: 700; transition: background .15s;
+}
+.ok-btn:hover { background: var(--accent-hover); }
+.ok-btn.wide { padding: 0 24px; height: 40px; }
+
+/* ---------- Menu déroulant des formats ---------- */
+.dropdown {
+  position: absolute; z-index: 30; right: 20px; top: 70px; width: 250px; max-width: calc(100% - 40px);
+  background: var(--bg-pop); border: 1px solid var(--border); border-radius: 8px; padding: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.dropdown-search {
+  display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; margin-bottom: 6px;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
+}
+.dropdown-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 13px; }
+.dropdown-list { max-height: 300px; overflow-y: auto; }
+.group-title {
+  display: flex; align-items: center; gap: 10px; margin: 10px 4px 4px; color: var(--muted);
+  font-size: 12px; font-weight: 700;
+}
+.group-title::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
+.format-item {
+  position: relative; display: flex; align-items: center; gap: 10px; width: 100%; height: 36px;
+  padding: 0 10px 0 12px; border-radius: 6px; color: var(--muted); text-align: left; font-weight: 500;
+}
+.format-item:hover { background: var(--bg-field); color: var(--text); }
+.format-item.selected { color: var(--text); }
+.format-item.selected::before {
+  content: ""; position: absolute; left: -2px; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--accent);
+}
+.format-item .name { flex: 1; }
+.format-item .badge { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--bg-field); color: var(--muted); }
+
+/* ---------- Bandeau d'alerte ---------- */
+.banner { padding: 10px 20px; background: #5a1414; color: #ffd7d7; font-size: 13px; }
+
+/* ---------- Écrans (accueil, paramètres, ciseaux) ---------- */
+.view { display: none; flex: 1; min-height: 0; overflow-y: auto; padding: 18px 20px 24px; }
+.view.active { display: flex; flex-direction: column; }
+.view-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.view-head h2 { font-size: 17px; font-weight: 700; }
+.page-title { font-size: 32px; font-weight: 600; margin: 8px 0 14px; }
+
+.ghost-btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 8px;
+  background: var(--bg-field); font-weight: 600;
+}
+.ghost-btn:hover, .btn:hover { background: var(--bg-hover); }
+.btn { height: 36px; padding: 0 16px; border-radius: 8px; background: var(--bg-field); font-weight: 600; }
+.btn-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.btn-row.end { justify-content: flex-end; margin-top: 18px; }
+
+/* ---------- Liste de téléchargements ---------- */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.card {
+  position: relative; display: flex; gap: 16px; padding: 12px 14px 12px 12px;
+  background: var(--bg-card); border-radius: 10px; min-height: 96px;
+}
+.thumb { position: relative; flex: none; width: 128px; height: 72px; border-radius: 6px; overflow: hidden; background: var(--bg-field); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-right: 26px; }
+.title { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 12px; min-height: 16px; }
+.meta .clock { display: inline-flex; align-items: center; gap: 4px; }
+.meta .sep { width: 1px; height: 12px; background: var(--muted); opacity: .6; }
+.badges { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 6px; }
+.pill {
+  border: 1px solid currentColor; border-radius: 999px; padding: 1px 14px; font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .02em; white-space: nowrap;
+}
+.pill.queued { color: var(--muted); }
+.pill.downloading { color: var(--blue); }
+.pill.converting { color: var(--orange); }
+.pill.done { color: var(--green); }
+.pill.error { color: var(--accent); }
+.fmt { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.err-text { color: var(--accent); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.progress { height: 2px; background: var(--track); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.progress .bar { height: 100%; width: 0; background: var(--accent); transition: width .2s linear; }
+
+.dots { position: absolute; top: 10px; right: 8px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--muted); }
+.dots:hover { background: var(--bg-field); color: var(--text); }
+
+/* ---------- Menu "..." d'une carte ---------- */
+.menu {
+  position: fixed; z-index: 40; width: 190px; display: flex; flex-direction: column; gap: 4px; padding: 0;
+}
+.menu button {
+  display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 14px; border-radius: 6px;
+  background: var(--bg-field); font-weight: 600; text-align: left; box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+}
+.menu button:hover:not(:disabled) { background: var(--bg-hover); }
+.menu button:disabled { opacity: .45; cursor: default; }
+.menu button.danger { background: var(--accent); color: #fff; }
+.menu button.danger:hover { background: var(--accent-hover); }
+
+/* ---------- Écran vide ---------- */
+.empty { margin-top: auto; padding: 40px 0 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.empty .icon { color: var(--muted); }
+.empty-title { font-weight: 600; font-size: 14px; }
+.empty-sub { font-size: 11px; color: var(--muted); }
+
+/* ---------- Paramètres ---------- */
+.setting { display: flex; align-items: center; gap: 20px; padding: 16px 0; border-top: 1px solid var(--border); }
+.setting > .icon { color: var(--text); }
+.setting-text { flex: 1; min-width: 0; position: relative; }
+.setting-title { font-weight: 700; font-size: 15px; }
+.setting-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.setting-path { font-size: 12px; font-weight: 700; margin-top: 4px; word-break: break-all; -webkit-user-select: text; user-select: text; }
+.setting.disabled { opacity: .45; }
+.setting.disabled .num { pointer-events: none; }
+
+.switch { position: relative; flex: none; width: 50px; height: 28px; display: inline-block; }
+.switch input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 1; }
+.slider { position: absolute; inset: 0; border-radius: 999px; background: var(--bg-field); transition: background .15s; }
+.slider::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; transition: transform .15s;
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::after { transform: translateX(22px); }
+.switch input:focus-visible + .slider { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.num, .select, .time-input {
+  height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-field); outline: 0;
+}
+.num { width: 72px; }
+.select { min-width: 130px; }
+.num-wrap { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px 0 14px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--bg-card);
+}
+.chip-x { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; color: var(--muted); }
+.chip-x:hover { color: var(--text); background: var(--bg-field); }
+.add-lang { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; background: var(--bg-field); font-weight: 600; }
+.lang-pop {
+  position: absolute; z-index: 20; left: 0; margin-top: 6px; width: 220px; max-height: 240px; overflow-y: auto;
+  background: var(--bg-pop); border: 1px solid var(--border); border-radius: 8px; padding: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.lang-pop button { display: block; width: 100%; padding: 8px 10px; border-radius: 6px; text-align: left; }
+.lang-pop button:hover { background: var(--bg-field); }
+.version { margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--border); text-align: right; font-size: 12px; color: var(--muted); }
+
+/* ---------- Ciseaux ---------- */
+.cut-drop { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.cut-drop .icon { color: var(--muted); }
+.cut-editor { display: flex; flex-direction: column; gap: 14px; max-width: 640px; width: 100%; }
+.cut-file { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--bg-card); }
+.cut-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cut-row { display: grid; grid-template-columns: 70px 1fr 130px; align-items: center; gap: 12px; }
+.cut-row input[type="range"] { width: 100%; accent-color: var(--accent); }
+.time-input { width: 100%; text-align: center; font-variant-numeric: tabular-nums; }
+.cut-info { color: var(--muted); }
+.cut-info b { color: var(--text); font-variant-numeric: tabular-nums; }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.hint { font-size: 11px; color: var(--muted); margin-top: -8px; }
+.cut-progress { margin: 0; height: 4px; }
+
+/* ---------- Fenêtre "Codecs custom" ---------- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(0, 0, 0, .55); }
+.modal { width: min(420px, calc(100% - 32px)); padding: 22px; border-radius: 12px; background: var(--bg-pop); border: 1px solid var(--border); }
+.modal h3 { font-size: 17px; margin-bottom: 14px; }
+.field { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; font-weight: 600; }
+
+/* ---------- Message temporaire ---------- */
+.toast {
+  position: fixed; z-index: 60; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: min(560px, calc(100% - 32px));
+  padding: 12px 18px; border-radius: 10px; background: var(--bg-pop); border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35); font-weight: 600;
+}
+.toast.error { border-color: var(--accent); }
+
+/* ---------- Barres de défilement discrètes ---------- */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: var(--bg-field); border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+
+/* ---------- Petites fenêtres : on réduit un peu ---------- */
+@media (max-width: 640px) {
+  .sidebar { width: 84px; }
+  .thumb { width: 104px; height: 58px; }
+  .cut-row { grid-template-columns: 56px 1fr 100px; }
+  .setting { gap: 14px; }
+}
+
+/* Respect du réglage "réduire les animations" de l'ordinateur. */
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
