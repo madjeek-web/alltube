@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem / Problème de sécurité
+    url: https://github.com/madjeek-web/alltube/security/advisories/new
+    about: Please report vulnerabilities privately here. / Merci de signaler les failles en privé ici.
+  - name: Questions & ideas / Questions et discussions
+    url: https://github.com/madjeek-web/alltube/discussions
+    about: Ask a question or share an idea. / Pose une question ou partage une idée.

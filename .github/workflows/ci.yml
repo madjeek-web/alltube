@@ -1,0 +1,70 @@
+# =============================================================================
+#  ci.yml : "Intégration continue" (CI)
+# =============================================================================
+#  À chaque modification envoyée sur GitHub (push) ou proposée par quelqu'un
+#  (pull request), un petit robot GitHub vérifie automatiquement que :
+#   - le JavaScript de l'interface n'a pas d'erreur de syntaxe,
+#   - les traductions fr / en / zh sont complètes,
+#   - le Rust passe l'analyse de qualité (clippy) sans aucun avertissement,
+#   - les tests automatiques du Rust réussissent.
+#  Une coche verte = tout va bien. Une croix rouge = il y a un souci à voir.
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Droits MINIMUM : ce robot peut seulement LIRE le code.
+permissions:
+  contents: read
+
+# Si on pousse deux fois de suite, on annule l'ancienne vérification.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Interface (JavaScript et traductions)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Syntaxe JavaScript
+        run: for f in src/js/*.js scripts/*.js; do node --check "$f"; done
+      - name: Traductions complètes
+        run: node scripts/check-i18n.js
+
+  rust:
+    name: Rust (clippy et tests)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Bibliothèques système de Tauri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libssl-dev librsvg2-dev
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: src-tauri
+      # Tauri veut que les 3 moteurs existent au moment de compiler. Pour les
+      # vérifications on met de FAUX fichiers vides : ils ne sont jamais lancés.
+      - name: Faux moteurs (uniquement pour compiler)
+        run: |
+          for n in yt-dlp ffmpeg ffprobe; do
+            printf '#!/bin/sh\n' > "src-tauri/binaries/$n-x86_64-unknown-linux-gnu"
+          done
+      - name: Clippy (qualité du code)
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Tests automatiques
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked

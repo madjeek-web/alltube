@@ -1,0 +1,73 @@
+# =============================================================================
+#  release.yml : fabrique les installateurs Windows et Linux sur GitHub  (EXPÉRIMENTAL)
+# =============================================================================
+#  Ce workflow se lance À LA MAIN (Actions > Release > Run workflow).
+#  Il compile ALLTube sur des serveurs GitHub, puis crée un BROUILLON de release :
+#  rien n'est public tant que tu ne cliques pas sur "Publish release".
+#
+#  IMPORTANT : la version 1.0.0 officielle (Windows) est fabriquée sur ton PC et
+#  ajoutée à la main. Ce workflow sert pour les versions suivantes et pour Linux.
+#  macOS n'est pas encore pris en charge (voir ROADMAP.md).
+# =============================================================================
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Installateur ${{ matrix.name }}
+    permissions:
+      contents: write          # nécessaire pour créer le brouillon de release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+          - name: Linux
+            os: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      APPIMAGE_EXTRACT_AND_RUN: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bibliothèques système (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libssl-dev librsvg2-dev patchelf
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: src-tauri
+
+      # Les moteurs sont téléchargés depuis leurs dépôts officiels ET vérifiés par empreinte.
+      - name: Moteurs yt-dlp et ffmpeg (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: ./scripts/fetch-sidecars.ps1
+      - name: Moteurs yt-dlp et ffmpeg (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        run: bash scripts/fetch-sidecars.sh
+
+      - name: Outil de fabrication Tauri
+        run: cargo install tauri-cli --version "^2" --locked
+
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: cargo tauri
+          tagName: v__VERSION__
+          releaseName: "ALLTube v__VERSION__"
+          releaseBody: "Voir le CHANGELOG.md / See CHANGELOG.md"
+          releaseDraft: true
+          prerelease: false

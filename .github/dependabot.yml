@@ -1,0 +1,17 @@
+# Dependabot : un robot GitHub qui propose AUTOMATIQUEMENT des mises à jour
+# (bibliothèques Rust et actions GitHub) sous forme de "pull requests".
+# Tu relis, tu acceptes ou tu refuses : rien ne change sans ton accord.
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      rust-minor-and-patch:
+        update-types: ["minor", "patch"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

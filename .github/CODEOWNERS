@@ -1,0 +1,5 @@
+# CODEOWNERS : qui doit relire les changements. Ici, tout passe par le créateur.
+# Avec la protection de la branche "main", rien n'est fusionné sans sa relecture.
+*                       @madjeek-web
+/.github/               @madjeek-web
+/src-tauri/             @madjeek-web
