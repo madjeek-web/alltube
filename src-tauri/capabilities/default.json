@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Droits MINIMUM de la fenetre principale : seulement parler avec le code Rust et recevoir des evenements. Pas d'acces direct aux fichiers, au shell ni au reseau depuis la page web.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

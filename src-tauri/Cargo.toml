@@ -1,0 +1,54 @@
+# =============================================================================
+#  Cargo.toml : la "carte d'identité" du projet Rust
+# =============================================================================
+#  Rust utilise un outil qui s'appelle "cargo". Ce fichier lui dit :
+#   - comment s'appelle le programme,
+#   - quelles bibliothèques (des morceaux de code écrits par d'autres
+#     personnes) on a le droit d'utiliser.
+#  On garde VOLONTAIREMENT très peu de bibliothèques : moins on en a, moins il
+#  y a de risques de faille de sécurité ou de faux positif d'antivirus.
+# =============================================================================
+
+[package]
+name = "alltube"
+version = "1.0.0"
+description = "ALLTube : télécharge vidéos et musiques, gratuit, open source, sans limite"
+authors = ["Fabien Conéjéro"]
+repository = "https://github.com/madjeek-web/alltube"
+homepage = "https://madjeek-web.github.io/alltube/"
+license = "MIT"
+edition = "2021"
+rust-version = "1.77"
+
+# Outil utilisé pendant la fabrication (build) de l'application par Tauri.
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Tauri : le cadre qui fabrique la fenêtre. Le code Rust est le "cerveau",
+# la page web (dossier src/) est le "visage".
+tauri = { version = "2", features = [] }
+
+# Petits modules officiels Tauri.
+tauri-plugin-dialog = "2"        # fenêtres "choisir un dossier / un fichier"
+tauri-plugin-notification = "2"  # notification "téléchargement terminé"
+tauri-plugin-opener = "2"        # ouvrir un fichier ou un dossier dans l'explorateur
+
+# Serde : transforme les données Rust en texte JSON (et inversement),
+# pour que Rust et la page web puissent se parler.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Tokio : permet de faire plusieurs choses en même temps (plusieurs
+# téléchargements, sans que la fenêtre se fige).
+tokio = { version = "1", features = ["process", "io-util", "sync", "time", "macros", "rt"] }
+
+# "url" : vérifie qu'un lien est un vrai lien (sécurité).
+url = "2"
+
+# Réglages de la version finale (release).
+# ATTENTION : on n'utilise JAMAIS de "packer" (UPX ou autre) pour compresser
+# le .exe. Les antivirus détestent ça, car les virus font pareil.
+[profile.release]
+lto = true
+codegen-units = 1
